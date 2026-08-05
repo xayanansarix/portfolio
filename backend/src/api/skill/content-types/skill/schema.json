@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "skills",
+  "info": {
+    "singularName": "skill",
+    "pluralName": "skills",
+    "displayName": "Skill",
+    "description": "Technical and soft skills"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": { "type": "string", "required": true },
+    "category": {
+      "type": "enumeration",
+      "enum": ["Technical", "Soft"],
+      "default": "Technical"
+    },
+    "proficiency": {
+      "type": "integer",
+      "min": 0,
+      "max": 100,
+      "default": 70
+    },
+    "order": { "type": "integer", "default": 0 }
+  }
+}
