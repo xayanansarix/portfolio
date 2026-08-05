@@ -1,45 +1,11 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { Braces, Code2, Database, Terminal, Wrench } from "lucide-react";
-import { skillGroups as fallbackGroups, type SkillCategory } from "@/data/content";
+import { skillGroups, type SkillCategory } from "@/data/content";
 import { Reveal, motion } from "@/components/Motion";
-import { useStrapiData } from "@/hooks/use-strapi-data";
-import { getSkills } from "@/lib/strapi";
 
 const icons = [Code2, Braces, Terminal, Database, Wrench];
-const categories = Object.keys(fallbackGroups) as SkillCategory[];
-
-function categorizeSkill(name: string): SkillCategory {
-  const n = name.toLowerCase();
-  if (/react|vite|node|bootstrap|tailwind|strapi|flask|express/.test(n)) {
-    return "Frameworks & Libraries";
-  }
-  if (/html|css|javascript|typescript|python|java\b|sql|c\+\+|c\b/.test(n)) {
-    return "Languages";
-  }
-  return "Tools & DevOps";
-}
-
-function estimateLevel(name: string, category: string, index: number): number {
-  const n = name.toLowerCase();
-  if (/react|html|css|javascript|typescript|git|problem/.test(n)) return 88 - (index % 3) * 2;
-  if (/strapi|bootstrap|tailwind|vite/.test(n)) return 82 - (index % 3) * 3;
-  if (/python|node|flask/.test(n)) return 74 - (index % 2) * 4;
-  if (category === "Soft") return 90 - (index % 4) * 3;
-  return 70 + ((index * 5) % 15);
-}
-
-function skillLevel(
-  proficiency: number | null | undefined,
-  name: string,
-  category: string,
-  index: number,
-): number {
-  if (typeof proficiency === "number" && proficiency >= 0 && proficiency <= 100) {
-    return proficiency;
-  }
-  return estimateLevel(name, category, index);
-}
+const categories = Object.keys(skillGroups) as SkillCategory[];
 
 function Ring({ level }: { level: number }) {
   const r = 18;
@@ -67,38 +33,8 @@ function Ring({ level }: { level: number }) {
 }
 
 export function Skills() {
-  const { data: fetched } = useStrapiData(getSkills, []);
   const [active, setActive] = useState<SkillCategory>("Languages");
-
-  const groups = useMemo(() => {
-    if (!fetched?.length) return fallbackGroups;
-
-    const mapped: Record<SkillCategory, { name: string; level: number }[]> = {
-      Languages: [],
-      "Frameworks & Libraries": [],
-      "Tools & DevOps": [],
-    };
-
-    fetched.forEach((skill, i) => {
-      const bucket =
-        skill.category === "Soft" ? "Tools & DevOps" : categorizeSkill(skill.name);
-      mapped[bucket].push({
-        name: skill.name,
-        level: skillLevel(skill.proficiency, skill.name, skill.category, i),
-      });
-    });
-
-    // Ensure no empty tab if Strapi returned data
-    for (const cat of categories) {
-      if (!mapped[cat].length && fallbackGroups[cat]) {
-        mapped[cat] = [...fallbackGroups[cat]];
-      }
-    }
-
-    return mapped;
-  }, [fetched]);
-
-  const skills = groups[active];
+  const skills = skillGroups[active];
 
   return (
     <section id="skills" className="py-20 sm:py-28">

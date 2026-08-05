@@ -7,25 +7,21 @@ import { Projects } from "@/components/Projects";
 import { Certificates } from "@/components/Certificates";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
-import { useStrapiData } from "@/hooks/use-strapi-data";
-import { getAbout } from "@/lib/strapi";
 
 export default function App() {
-  const { data: about } = useStrapiData(getAbout, []);
-
   return (
     <div className="min-h-screen">
-      <Navbar about={about} />
+      <Navbar />
       <main>
-        <Hero about={about} />
+        <Hero />
         <Bio />
         <Skills />
-        <LeetCode about={about} />
+        <LeetCode />
         <Projects />
         <Certificates />
-        <Contact about={about} />
+        <Contact />
       </main>
-      <Footer about={about} />
+      <Footer />
     </div>
   );
 }

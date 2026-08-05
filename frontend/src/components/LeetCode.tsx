@@ -1,30 +1,41 @@
+import { useEffect, useState } from "react";
 import { ArrowUpRight, Code2 } from "lucide-react";
+import { profile } from "@/data/content";
 import { Reveal, Stagger, StaggerItem, motion } from "@/components/Motion";
-import { useStrapiData } from "@/hooks/use-strapi-data";
-import { getLeetCodeStats } from "@/lib/leetcode";
-import type { About } from "@/lib/strapi";
-
-interface LeetCodeProps {
-  about?: About | null;
-}
+import { getLeetCodeStats, type LeetCodeStats } from "@/lib/leetcode";
 
 function formatNumber(value: number | null | undefined) {
   if (value == null || Number.isNaN(value)) return "—";
   return value.toLocaleString("en-IN");
 }
 
-export function LeetCode({ about }: LeetCodeProps) {
-  const username =
-    about?.leetcodeUsername?.trim() ||
-    import.meta.env.VITE_LEETCODE_USERNAME?.trim() ||
-    "";
+export function LeetCode() {
+  const username = profile.leetcodeUsername;
+  const [data, setData] = useState<LeetCodeStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-  const { data, loading, error } = useStrapiData(
-    () => (username ? getLeetCodeStats(username) : Promise.resolve(null)),
-    [username],
-  );
-
-  if (!username) return null;
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    getLeetCodeStats(username)
+      .then((stats) => {
+        if (!cancelled) {
+          setData(stats);
+          setError(!stats);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError(true);
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [username]);
 
   const difficulties = [
     { label: "Easy", value: data?.easySolved, color: "text-emerald-400" },
@@ -75,9 +86,7 @@ export function LeetCode({ about }: LeetCodeProps) {
               <>
                 <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-muted">
-                      Total Solved
-                    </p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-muted">Total Solved</p>
                     <motion.p
                       initial={{ opacity: 0, y: 8 }}
                       whileInView={{ opacity: 1, y: 0 }}
@@ -92,11 +101,6 @@ export function LeetCode({ about }: LeetCodeProps) {
                     <p className="mt-1 text-lg font-semibold text-cyan">
                       #{formatNumber(data.ranking)}
                     </p>
-                    {data.contestRating != null && (
-                      <p className="mt-1 text-xs text-muted">
-                        Contest rating {Math.round(data.contestRating)}
-                      </p>
-                    )}
                   </div>
                 </div>
 
@@ -114,9 +118,7 @@ export function LeetCode({ about }: LeetCodeProps) {
                 </Stagger>
 
                 <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-5">
-                  <p className="text-xs text-muted">
-                    Updates automatically · cached ~10 min
-                  </p>
+                  <p className="text-xs text-muted">Live from LeetCode</p>
                   <a
                     href={data.profileUrl}
                     target="_blank"

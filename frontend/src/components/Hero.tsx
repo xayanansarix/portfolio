@@ -2,67 +2,8 @@ import { ArrowRight, MapPin, Sparkles } from "lucide-react";
 import { profile } from "@/data/content";
 import { motion } from "@/components/Motion";
 import { GithubIcon, LinkedinIcon } from "@/components/SocialIcons";
-import { useStrapiData } from "@/hooks/use-strapi-data";
-import {
-  getCertificationsCount,
-  getEducation,
-  getMediaUrl,
-  getProjectsCount,
-  type About,
-} from "@/lib/strapi";
 
-interface HeroProps {
-  about: About | null;
-}
-
-export function Hero({ about }: HeroProps) {
-  const { data: projectsCount } = useStrapiData(getProjectsCount, []);
-  const { data: certificationsCount } = useStrapiData(getCertificationsCount, []);
-  const { data: education } = useStrapiData(getEducation, []);
-
-  const name = about?.name ?? profile.name;
-  const initials =
-    name
-      .split(" ")
-      .map((p) => p[0])
-      .filter(Boolean)
-      .slice(0, 2)
-      .join("")
-      .toUpperCase() || profile.initials;
-  const badge = about?.badge ?? profile.badge;
-  const summary = about?.heroSubheadline ?? profile.summary;
-  const location = about?.location ?? profile.location;
-  const photoUrl = getMediaUrl(about?.profilePhoto);
-  const githubUrl = about?.githubUrl || profile.githubUrl;
-  const linkedinUrl = about?.linkedinUrl || profile.linkedinUrl;
-  const college =
-    education?.find((e) =>
-      /bachelor|b\.?\s*tech|engineering|institute|university|college/i.test(
-        `${e.degree} ${e.institution}`,
-      ),
-    ) ?? education?.[education.length - 1];
-  const cgpa = college?.cgpa;
-
-  const headlineParts = about?.heroHeadline
-    ? null
-    : profile.headline;
-
-  const stats = [
-    {
-      value: cgpa != null ? String(cgpa) : profile.stats[0].value,
-      label: "CGPA",
-    },
-    {
-      value: projectsCount != null ? `${projectsCount}+` : profile.stats[1].value,
-      label: "Projects shipped",
-    },
-    {
-      value: certificationsCount != null ? String(certificationsCount) : profile.stats[2].value,
-      label: "Certificates",
-    },
-    profile.stats[3],
-  ];
-
+export function Hero() {
   return (
     <section id="home" className="relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-28">
       <motion.div
@@ -83,29 +24,19 @@ export function Hero({ about }: HeroProps) {
           <motion.span
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
-            className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/10 px-3 py-1 text-xs font-medium text-cyan-bright"
+            className="inline-flex items-center gap-2 rounded-full border border-cyan/30 bg-cyan/10 px-3 py-1 text-xs font-medium text-cyan"
           >
             <Sparkles className="size-3.5" />
-            {badge}
+            {profile.badge}
           </motion.span>
 
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55, delay: 0.08 }}
-            className="mt-6 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl"
+            transition={{ duration: 0.5, delay: 0.08 }}
+            className="mt-5 text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl"
           >
-            {headlineParts ? (
-              <>
-                {headlineParts[0]}{" "}
-                <span className="text-gradient">{headlineParts[1]}</span>{" "}
-                {headlineParts[2]}{" "}
-                <span className="text-gradient">{headlineParts[3]}</span>
-              </>
-            ) : (
-              about?.heroHeadline
-            )}
+            {profile.heroHeadline}
           </motion.h1>
 
           <motion.p
@@ -114,7 +45,7 @@ export function Hero({ about }: HeroProps) {
             transition={{ duration: 0.5, delay: 0.16 }}
             className="mt-6 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
           >
-            {summary}
+            {profile.summary}
           </motion.p>
 
           <motion.div
@@ -139,36 +70,32 @@ export function Hero({ about }: HeroProps) {
             >
               Get in Touch
             </motion.a>
-            {githubUrl ? (
-              <motion.a
-                href={githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                aria-label="GitHub profile"
-                className="inline-flex size-11 items-center justify-center rounded-full border border-line bg-panel/60 text-white hover:border-cyan/40 hover:text-cyan"
-              >
-                <GithubIcon className="size-5" />
-              </motion.a>
-            ) : null}
-            {linkedinUrl ? (
-              <motion.a
-                href={linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                aria-label="LinkedIn profile"
-                className="inline-flex size-11 items-center justify-center rounded-full border border-line bg-panel/60 text-white hover:border-cyan/40 hover:text-cyan"
-              >
-                <LinkedinIcon className="size-5" />
-              </motion.a>
-            ) : null}
+            <motion.a
+              href={profile.githubUrl}
+              target="_blank"
+              rel="noreferrer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              aria-label="GitHub profile"
+              className="inline-flex size-11 items-center justify-center rounded-full border border-line bg-panel/60 text-white hover:border-cyan/40 hover:text-cyan"
+            >
+              <GithubIcon className="size-5" />
+            </motion.a>
+            <motion.a
+              href={profile.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              aria-label="LinkedIn profile"
+              className="inline-flex size-11 items-center justify-center rounded-full border border-line bg-panel/60 text-white hover:border-cyan/40 hover:text-cyan"
+            >
+              <LinkedinIcon className="size-5" />
+            </motion.a>
           </motion.div>
 
           <div className="mt-10 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
-            {stats.map((stat, i) => (
+            {profile.stats.map((stat, i) => (
               <motion.div
                 key={stat.label}
                 initial={{ opacity: 0, y: 16 }}
@@ -203,45 +130,29 @@ export function Hero({ about }: HeroProps) {
           >
             <div className="flex aspect-[4/5] flex-col justify-end bg-gradient-to-br from-panel-2 via-ink-soft to-ink p-6">
               <div className="mb-auto flex justify-center pt-10">
-                {photoUrl ? (
-                  <motion.img
-                    src={photoUrl}
-                    alt={`Portrait of ${name}`}
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 rgba(34,211,238,0.1)",
-                        "0 0 30px rgba(34,211,238,0.45)",
-                        "0 0 0 rgba(34,211,238,0.1)",
-                      ],
-                    }}
-                    transition={{ duration: 3.2, repeat: Infinity }}
-                    className="size-40 rounded-full border-2 border-cyan/50 object-cover"
-                  />
-                ) : (
-                  <motion.div
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 rgba(34,211,238,0.1)",
-                        "0 0 30px rgba(34,211,238,0.45)",
-                        "0 0 0 rgba(34,211,238,0.1)",
-                      ],
-                    }}
-                    transition={{ duration: 3.2, repeat: Infinity }}
-                    className="flex size-40 items-center justify-center rounded-full border-2 border-cyan/50 bg-gradient-to-br from-cyan/20 to-violet/20 text-5xl font-bold text-cyan"
-                  >
-                    {initials}
-                  </motion.div>
-                )}
+                <motion.img
+                  src={profile.photoUrl}
+                  alt={`Portrait of ${profile.name}`}
+                  animate={{
+                    boxShadow: [
+                      "0 0 0 rgba(34,211,238,0.1)",
+                      "0 0 30px rgba(34,211,238,0.45)",
+                      "0 0 0 rgba(34,211,238,0.1)",
+                    ],
+                  }}
+                  transition={{ duration: 3.2, repeat: Infinity }}
+                  className="size-40 rounded-full border-2 border-cyan/50 object-cover"
+                />
               </div>
 
               <div className="rounded-xl border border-white/10 bg-black/35 p-4 backdrop-blur">
                 <span className="inline-flex items-center rounded-full bg-cyan/15 px-2.5 py-1 text-[11px] font-medium text-cyan">
-                  Active Status: Building 🚀
+                  Active Status: Building
                 </span>
-                <h3 className="mt-3 text-xl font-bold text-white">{name}</h3>
+                <h3 className="mt-3 text-xl font-bold text-white">{profile.name}</h3>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted">
                   <MapPin className="size-3.5 text-cyan" />
-                  {location}
+                  {profile.location}
                 </p>
               </div>
             </div>

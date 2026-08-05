@@ -1,5 +1,3 @@
-import { STRAPI_URL } from "@/lib/strapi";
-
 export interface LeetCodeStats {
   found: boolean;
   username: string;
@@ -19,20 +17,15 @@ export interface LeetCodeStats {
 
 const ALFA_API = "https://alfa-leetcode-api.onrender.com";
 
-async function fromStrapi(username: string): Promise<LeetCodeStats | null> {
-  const response = await fetch(
-    `${STRAPI_URL}/api/leetcode/${encodeURIComponent(username)}`,
-  );
-  if (!response.ok) return null;
-  const data = (await response.json()) as LeetCodeStats & { error?: string };
-  if (!data.found) return null;
-  return data;
-}
+export async function getLeetCodeStats(
+  username: string,
+): Promise<LeetCodeStats | null> {
+  const clean = username.trim().replace(/^@/, "");
+  if (!clean) return null;
 
-async function fromPublicApi(username: string): Promise<LeetCodeStats | null> {
   const [profileRes, solvedRes] = await Promise.all([
-    fetch(`${ALFA_API}/${encodeURIComponent(username)}`),
-    fetch(`${ALFA_API}/${encodeURIComponent(username)}/solved`),
+    fetch(`${ALFA_API}/${encodeURIComponent(clean)}`),
+    fetch(`${ALFA_API}/${encodeURIComponent(clean)}/solved`),
   ]);
 
   if (!profileRes.ok || !solvedRes.ok) return null;
@@ -53,7 +46,7 @@ async function fromPublicApi(username: string): Promise<LeetCodeStats | null> {
 
   return {
     found: true,
-    username: profile.username ?? username,
+    username: profile.username ?? clean,
     ranking: profile.ranking ?? null,
     reputation: profile.reputation ?? null,
     totalSolved: solved.solvedProblem ?? 0,
@@ -64,23 +57,7 @@ async function fromPublicApi(username: string): Promise<LeetCodeStats | null> {
     contestRanking: null,
     contestTopPercentage: null,
     contestsAttended: null,
-    profileUrl: `https://leetcode.com/u/${profile.username ?? username}/`,
+    profileUrl: `https://leetcode.com/u/${profile.username ?? clean}/`,
     fetchedAt: new Date().toISOString(),
   };
-}
-
-export async function getLeetCodeStats(
-  username: string,
-): Promise<LeetCodeStats | null> {
-  const clean = username.trim().replace(/^@/, "");
-  if (!clean) return null;
-
-  try {
-    const viaStrapi = await fromStrapi(clean);
-    if (viaStrapi) return viaStrapi;
-  } catch {
-    // Strapi may be down — fall through to public API.
-  }
-
-  return fromPublicApi(clean);
 }

@@ -1,19 +1,13 @@
 # Dependencies & builds
 node_modules/
 dist/
-build/
-.strapi/
+dist-ssr/
 *.tsbuildinfo
 
 # Env & secrets
 .env
 .env.*
 !.env.example
-
-# Strapi local data
-backend/.tmp/
-backend/public/uploads/*
-!backend/public/uploads/.gitkeep
 
 # Logs & OS
 *.log
